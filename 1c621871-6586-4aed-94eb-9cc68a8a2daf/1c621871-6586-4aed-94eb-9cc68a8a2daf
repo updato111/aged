@@ -1,0 +1,524 @@
+var CONFETTI, SIZE = {}, module = {};
+(function d(g, b, _, $) {
+    var et = !!(g.Worker && g.Blob && g.Promise && g.OffscreenCanvas && g.OffscreenCanvasRenderingContext2D && g.HTMLCanvasElement && g.HTMLCanvasElement.prototype.transferControlToOffscreen && g.URL && g.URL.createObjectURL)
+      , tt = typeof Path2D == "function" && typeof DOMMatrix == "function"
+      , rt = function() {
+        if (!g.OffscreenCanvas)
+            return !1;
+        var Lt = new OffscreenCanvas(1,1)
+          , Mt = Lt.getContext("2d");
+        Mt.fillRect(0, 0, 1, 1);
+        var ar = Lt.transferToImageBitmap();
+        try {
+            Mt.createPattern(ar, "no-repeat")
+        } catch {
+            return !1
+        }
+        return !0
+    }();
+    function nt() {}
+    function it(Lt) {
+        var Mt = b.exports.Promise
+          , ar = Mt !== void 0 ? Mt : g.Promise;
+        return typeof ar == "function" ? new ar(Lt) : (Lt(nt, nt),
+        null)
+    }
+    var ot = function(Lt, Mt) {
+        return {
+            transform: function(ar) {
+                if (Lt)
+                    return ar;
+                if (Mt.has(ar))
+                    return Mt.get(ar);
+                var wr = new OffscreenCanvas(ar.width,ar.height)
+                  , Tr = wr.getContext("2d");
+                return Tr.drawImage(ar, 0, 0),
+                Mt.set(ar, wr),
+                wr
+            },
+            clear: function() {
+                Mt.clear()
+            }
+        }
+    }(rt, new Map)
+      , at = function() {
+        var Lt = Math.floor(16.666666666666668), Mt, ar, wr = {}, Tr = 0;
+        return typeof requestAnimationFrame == "function" && typeof cancelAnimationFrame == "function" ? (Mt = function(Pr) {
+            var kr = Math.random();
+            return wr[kr] = requestAnimationFrame(function jr(cr) {
+                Tr === cr || Tr + Lt - 1 < cr ? (Tr = cr,
+                delete wr[kr],
+                Pr()) : wr[kr] = requestAnimationFrame(jr)
+            }),
+            kr
+        }
+        ,
+        ar = function(Pr) {
+            wr[Pr] && cancelAnimationFrame(wr[Pr])
+        }
+        ) : (Mt = function(Pr) {
+            return setTimeout(Pr, Lt)
+        }
+        ,
+        ar = function(Pr) {
+            return clearTimeout(Pr)
+        }
+        ),
+        {
+            frame: Mt,
+            cancel: ar
+        }
+    }()
+      , st = function() {
+        var Lt, Mt, ar = {};
+        function wr(Tr) {
+            function Pr(kr, jr) {
+                Tr.postMessage({
+                    options: kr || {},
+                    callback: jr
+                })
+            }
+            Tr.init = function(jr) {
+                var cr = jr.transferControlToOffscreen();
+                Tr.postMessage({
+                    canvas: cr
+                }, [cr])
+            }
+            ,
+            Tr.fire = function(jr, cr, dr) {
+                if (Mt)
+                    return Pr(jr, null),
+                    Mt;
+                var lr = Math.random().toString(36).slice(2);
+                return Mt = it(function(ir) {
+                    function gr(Cr) {
+                        Cr.data.callback === lr && (delete ar[lr],
+                        Tr.removeEventListener("message", gr),
+                        Mt = null,
+                        ot.clear(),
+                        dr(),
+                        ir())
+                    }
+                    Tr.addEventListener("message", gr),
+                    Pr(jr, lr),
+                    ar[lr] = gr.bind(null, {
+                        data: {
+                            callback: lr
+                        }
+                    })
+                }),
+                Mt
+            }
+            ,
+            Tr.reset = function() {
+                Tr.postMessage({
+                    reset: !0
+                });
+                for (var jr in ar)
+                    ar[jr](),
+                    delete ar[jr]
+            }
+        }
+        return function() {
+            if (Lt)
+                return Lt;
+            if (!_ && et) {
+                var Tr = ["var CONFETTI, SIZE = {}, module = {};", "(" + d.toString() + ")(this, module, true, SIZE);", "onmessage = function(msg) {", "  if (msg.data.options) {", "    CONFETTI(msg.data.options).then(function () {", "      if (msg.data.callback) {", "        postMessage({ callback: msg.data.callback });", "      }", "    });", "  } else if (msg.data.reset) {", "    CONFETTI && CONFETTI.reset();", "  } else if (msg.data.resize) {", "    SIZE.width = msg.data.resize.width;", "    SIZE.height = msg.data.resize.height;", "  } else if (msg.data.canvas) {", "    SIZE.width = msg.data.canvas.width;", "    SIZE.height = msg.data.canvas.height;", "    CONFETTI = module.exports.create(msg.data.canvas);", "  }", "}"].join(`
+`);
+                try {
+                    Lt = new Worker(URL.createObjectURL(new Blob([Tr])))
+                } catch (Pr) {
+                    return typeof console !== void 0 && typeof console.warn == "function" && console.warn("🎊 Could not load worker", Pr),
+                    null
+                }
+                wr(Lt)
+            }
+            return Lt
+        }
+    }()
+      , dt = {
+        particleCount: 50,
+        angle: 90,
+        spread: 45,
+        startVelocity: 45,
+        decay: .9,
+        gravity: 1,
+        drift: 0,
+        ticks: 200,
+        x: .5,
+        y: .5,
+        shapes: ["square", "circle"],
+        zIndex: 100,
+        colors: ["#26ccff", "#a25afd", "#ff5e7e", "#88ff5a", "#fcff42", "#ffa62d", "#ff36ff"],
+        disableForReducedMotion: !1,
+        scalar: 1
+    };
+    function ft(Lt, Mt) {
+        return Mt ? Mt(Lt) : Lt
+    }
+    function ht(Lt) {
+        return Lt != null
+    }
+    function xt(Lt, Mt, ar) {
+        return ft(Lt && ht(Lt[Mt]) ? Lt[Mt] : dt[Mt], ar)
+    }
+    function lt(Lt) {
+        return Lt < 0 ? 0 : Math.floor(Lt)
+    }
+    function ct(Lt, Mt) {
+        return Math.floor(Math.random() * (Mt - Lt)) + Lt
+    }
+    function ut(Lt) {
+        return parseInt(Lt, 16)
+    }
+    function pt(Lt) {
+        return Lt.map(vt)
+    }
+    function vt(Lt) {
+        var Mt = String(Lt).replace(/[^0-9a-f]/gi, "");
+        return Mt.length < 6 && (Mt = Mt[0] + Mt[0] + Mt[1] + Mt[1] + Mt[2] + Mt[2]),
+        {
+            r: ut(Mt.substring(0, 2)),
+            g: ut(Mt.substring(2, 4)),
+            b: ut(Mt.substring(4, 6))
+        }
+    }
+    function _t(Lt) {
+        var Mt = xt(Lt, "origin", Object);
+        return Mt.x = xt(Mt, "x", Number),
+        Mt.y = xt(Mt, "y", Number),
+        Mt
+    }
+    function Pt(Lt) {
+        Lt.width = document.documentElement.clientWidth,
+        Lt.height = document.documentElement.clientHeight
+    }
+    function kt(Lt) {
+        var Mt = Lt.getBoundingClientRect();
+        Lt.width = Mt.width,
+        Lt.height = Mt.height
+    }
+    function $t(Lt) {
+        var Mt = document.createElement("canvas");
+        return Mt.style.position = "fixed",
+        Mt.style.top = "0px",
+        Mt.style.left = "0px",
+        Mt.style.pointerEvents = "none",
+        Mt.style.zIndex = Lt,
+        Mt
+    }
+    function Wt(Lt, Mt, ar, wr, Tr, Pr, kr, jr, cr) {
+        Lt.save(),
+        Lt.translate(Mt, ar),
+        Lt.rotate(Pr),
+        Lt.scale(wr, Tr),
+        Lt.arc(0, 0, 1, kr, jr, cr),
+        Lt.restore()
+    }
+    function Ht(Lt) {
+        var Mt = Lt.angle * (Math.PI / 180)
+          , ar = Lt.spread * (Math.PI / 180);
+        return {
+            x: Lt.x,
+            y: Lt.y,
+            wobble: Math.random() * 10,
+            wobbleSpeed: Math.min(.11, Math.random() * .1 + .05),
+            velocity: Lt.startVelocity * .5 + Math.random() * Lt.startVelocity,
+            angle2D: -Mt + (.5 * ar - Math.random() * ar),
+            tiltAngle: (Math.random() * (.75 - .25) + .25) * Math.PI,
+            color: Lt.color,
+            shape: Lt.shape,
+            tick: 0,
+            totalTicks: Lt.ticks,
+            decay: Lt.decay,
+            drift: Lt.drift,
+            random: Math.random() + 2,
+            tiltSin: 0,
+            tiltCos: 0,
+            wobbleX: 0,
+            wobbleY: 0,
+            gravity: Lt.gravity * 3,
+            ovalScalar: .6,
+            scalar: Lt.scalar,
+            flat: Lt.flat
+        }
+    }
+    function Dt(Lt, Mt) {
+        Mt.x += Math.cos(Mt.angle2D) * Mt.velocity + Mt.drift,
+        Mt.y += Math.sin(Mt.angle2D) * Mt.velocity + Mt.gravity,
+        Mt.velocity *= Mt.decay,
+        Mt.flat ? (Mt.wobble = 0,
+        Mt.wobbleX = Mt.x + 10 * Mt.scalar,
+        Mt.wobbleY = Mt.y + 10 * Mt.scalar,
+        Mt.tiltSin = 0,
+        Mt.tiltCos = 0,
+        Mt.random = 1) : (Mt.wobble += Mt.wobbleSpeed,
+        Mt.wobbleX = Mt.x + 10 * Mt.scalar * Math.cos(Mt.wobble),
+        Mt.wobbleY = Mt.y + 10 * Mt.scalar * Math.sin(Mt.wobble),
+        Mt.tiltAngle += .1,
+        Mt.tiltSin = Math.sin(Mt.tiltAngle),
+        Mt.tiltCos = Math.cos(Mt.tiltAngle),
+        Mt.random = Math.random() + 2);
+        var ar = Mt.tick++ / Mt.totalTicks
+          , wr = Mt.x + Mt.random * Mt.tiltCos
+          , Tr = Mt.y + Mt.random * Mt.tiltSin
+          , Pr = Mt.wobbleX + Mt.random * Mt.tiltCos
+          , kr = Mt.wobbleY + Mt.random * Mt.tiltSin;
+        if (Lt.fillStyle = "rgba(" + Mt.color.r + ", " + Mt.color.g + ", " + Mt.color.b + ", " + (1 - ar) + ")",
+        Lt.beginPath(),
+        tt && Mt.shape.type === "path" && typeof Mt.shape.path == "string" && Array.isArray(Mt.shape.matrix))
+            Lt.fill(qt(Mt.shape.path, Mt.shape.matrix, Mt.x, Mt.y, Math.abs(Pr - wr) * .1, Math.abs(kr - Tr) * .1, Math.PI / 10 * Mt.wobble));
+        else if (Mt.shape.type === "bitmap") {
+            var jr = Math.PI / 10 * Mt.wobble
+              , cr = Math.abs(Pr - wr) * .1
+              , dr = Math.abs(kr - Tr) * .1
+              , lr = Mt.shape.bitmap.width * Mt.scalar
+              , ir = Mt.shape.bitmap.height * Mt.scalar
+              , gr = new DOMMatrix([Math.cos(jr) * cr, Math.sin(jr) * cr, -Math.sin(jr) * dr, Math.cos(jr) * dr, Mt.x, Mt.y]);
+            gr.multiplySelf(new DOMMatrix(Mt.shape.matrix));
+            var Cr = Lt.createPattern(ot.transform(Mt.shape.bitmap), "no-repeat");
+            Cr.setTransform(gr),
+            Lt.globalAlpha = 1 - ar,
+            Lt.fillStyle = Cr,
+            Lt.fillRect(Mt.x - lr / 2, Mt.y - ir / 2, lr, ir),
+            Lt.globalAlpha = 1
+        } else if (Mt.shape === "circle")
+            Lt.ellipse ? Lt.ellipse(Mt.x, Mt.y, Math.abs(Pr - wr) * Mt.ovalScalar, Math.abs(kr - Tr) * Mt.ovalScalar, Math.PI / 10 * Mt.wobble, 0, 2 * Math.PI) : Wt(Lt, Mt.x, Mt.y, Math.abs(Pr - wr) * Mt.ovalScalar, Math.abs(kr - Tr) * Mt.ovalScalar, Math.PI / 10 * Mt.wobble, 0, 2 * Math.PI);
+        else if (Mt.shape === "star")
+            for (var hr = Math.PI / 2 * 3, zr = 4 * Mt.scalar, Zr = 8 * Mt.scalar, ln = Mt.x, Gr = Mt.y, vn = 5, fn = Math.PI / vn; vn--; )
+                ln = Mt.x + Math.cos(hr) * Zr,
+                Gr = Mt.y + Math.sin(hr) * Zr,
+                Lt.lineTo(ln, Gr),
+                hr += fn,
+                ln = Mt.x + Math.cos(hr) * zr,
+                Gr = Mt.y + Math.sin(hr) * zr,
+                Lt.lineTo(ln, Gr),
+                hr += fn;
+        else
+            Lt.moveTo(Math.floor(Mt.x), Math.floor(Mt.y)),
+            Lt.lineTo(Math.floor(Mt.wobbleX), Math.floor(Tr)),
+            Lt.lineTo(Math.floor(Pr), Math.floor(kr)),
+            Lt.lineTo(Math.floor(wr), Math.floor(Mt.wobbleY));
+        return Lt.closePath(),
+        Lt.fill(),
+        Mt.tick < Mt.totalTicks
+    }
+    function Vt(Lt, Mt, ar, wr, Tr) {
+        var Pr = Mt.slice(), kr = Lt.getContext("2d"), jr, cr, dr = it(function(lr) {
+            function ir() {
+                jr = cr = null,
+                kr.clearRect(0, 0, wr.width, wr.height),
+                ot.clear(),
+                Tr(),
+                lr()
+            }
+            function gr() {
+                _ && !(wr.width === $.width && wr.height === $.height) && (wr.width = Lt.width = $.width,
+                wr.height = Lt.height = $.height),
+                !wr.width && !wr.height && (ar(Lt),
+                wr.width = Lt.width,
+                wr.height = Lt.height),
+                kr.clearRect(0, 0, wr.width, wr.height),
+                Pr = Pr.filter(function(Cr) {
+                    return Dt(kr, Cr)
+                }),
+                Pr.length ? jr = at.frame(gr) : ir()
+            }
+            jr = at.frame(gr),
+            cr = ir
+        });
+        return {
+            addFettis: function(lr) {
+                return Pr = Pr.concat(lr),
+                dr
+            },
+            canvas: Lt,
+            promise: dr,
+            reset: function() {
+                jr && at.cancel(jr),
+                cr && cr()
+            }
+        }
+    }
+    function Ft(Lt, Mt) {
+        var ar = !Lt, wr = !!xt(Mt || {}, "resize"), Tr = !1, Pr = xt(Mt, "disableForReducedMotion", Boolean), kr = et && !!xt(Mt || {}, "useWorker"), jr = kr ? st() : null, cr = ar ? Pt : kt, dr = Lt && jr ? !!Lt.__confetti_initialized : !1, lr = typeof matchMedia == "function" && matchMedia("(prefers-reduced-motion)").matches, ir;
+        function gr(hr, zr, Zr) {
+            for (var ln = xt(hr, "particleCount", lt), Gr = xt(hr, "angle", Number), vn = xt(hr, "spread", Number), fn = xt(hr, "startVelocity", Number), Rn = xt(hr, "decay", Number), bn = xt(hr, "gravity", Number), Un = xt(hr, "drift", Number), zn = xt(hr, "colors", pt), er = xt(hr, "ticks", Number), Ut = xt(hr, "shapes"), Ct = xt(hr, "scalar"), yt = !!xt(hr, "flat"), bt = _t(hr), At = ln, Gt = [], Qt = Lt.width * bt.x, rr = Lt.height * bt.y; At--; )
+                Gt.push(Ht({
+                    x: Qt,
+                    y: rr,
+                    angle: Gr,
+                    spread: vn,
+                    startVelocity: fn,
+                    color: zn[At % zn.length],
+                    shape: Ut[ct(0, Ut.length)],
+                    ticks: er,
+                    decay: Rn,
+                    gravity: bn,
+                    drift: Un,
+                    scalar: Ct,
+                    flat: yt
+                }));
+            return ir ? ir.addFettis(Gt) : (ir = Vt(Lt, Gt, cr, zr, Zr),
+            ir.promise)
+        }
+        function Cr(hr) {
+            var zr = Pr || xt(hr, "disableForReducedMotion", Boolean)
+              , Zr = xt(hr, "zIndex", Number);
+            if (zr && lr)
+                return it(function(fn) {
+                    fn()
+                });
+            ar && ir ? Lt = ir.canvas : ar && !Lt && (Lt = $t(Zr),
+            document.body.appendChild(Lt)),
+            wr && !dr && cr(Lt);
+            var ln = {
+                width: Lt.width,
+                height: Lt.height
+            };
+            jr && !dr && jr.init(Lt),
+            dr = !0,
+            jr && (Lt.__confetti_initialized = !0);
+            function Gr() {
+                if (jr) {
+                    var fn = {
+                        getBoundingClientRect: function() {
+                            if (!ar)
+                                return Lt.getBoundingClientRect()
+                        }
+                    };
+                    cr(fn),
+                    jr.postMessage({
+                        resize: {
+                            width: fn.width,
+                            height: fn.height
+                        }
+                    });
+                    return
+                }
+                ln.width = ln.height = null
+            }
+            function vn() {
+                ir = null,
+                wr && (Tr = !1,
+                g.removeEventListener("resize", Gr)),
+                ar && Lt && (document.body.contains(Lt) && document.body.removeChild(Lt),
+                Lt = null,
+                dr = !1)
+            }
+            return wr && !Tr && (Tr = !0,
+            g.addEventListener("resize", Gr, !1)),
+            jr ? jr.fire(hr, ln, vn) : gr(hr, ln, vn)
+        }
+        return Cr.reset = function() {
+            jr && jr.reset(),
+            ir && ir.reset()
+        }
+        ,
+        Cr
+    }
+    var Kt;
+    function Rt() {
+        return Kt || (Kt = Ft(null, {
+            useWorker: !0,
+            resize: !0
+        })),
+        Kt
+    }
+    function qt(Lt, Mt, ar, wr, Tr, Pr, kr) {
+        var jr = new Path2D(Lt)
+          , cr = new Path2D;
+        cr.addPath(jr, new DOMMatrix(Mt));
+        var dr = new Path2D;
+        return dr.addPath(cr, new DOMMatrix([Math.cos(kr) * Tr, Math.sin(kr) * Tr, -Math.sin(kr) * Pr, Math.cos(kr) * Pr, ar, wr])),
+        dr
+    }
+    function Et(Lt) {
+        if (!tt)
+            throw new Error("path confetti are not supported in this browser");
+        var Mt, ar;
+        typeof Lt == "string" ? Mt = Lt : (Mt = Lt.path,
+        ar = Lt.matrix);
+        var wr = new Path2D(Mt)
+          , Tr = document.createElement("canvas")
+          , Pr = Tr.getContext("2d");
+        if (!ar) {
+            for (var kr = 1e3, jr = kr, cr = kr, dr = 0, lr = 0, ir, gr, Cr = 0; Cr < kr; Cr += 2)
+                for (var hr = 0; hr < kr; hr += 2)
+                    Pr.isPointInPath(wr, Cr, hr, "nonzero") && (jr = Math.min(jr, Cr),
+                    cr = Math.min(cr, hr),
+                    dr = Math.max(dr, Cr),
+                    lr = Math.max(lr, hr));
+            ir = dr - jr,
+            gr = lr - cr;
+            var zr = 10
+              , Zr = Math.min(zr / ir, zr / gr);
+            ar = [Zr, 0, 0, Zr, -Math.round(ir / 2 + jr) * Zr, -Math.round(gr / 2 + cr) * Zr]
+        }
+        return {
+            type: "path",
+            path: Mt,
+            matrix: ar
+        }
+    }
+    function St(Lt) {
+        var Mt, ar = 1, wr = "#000000", Tr = '"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';
+        typeof Lt == "string" ? Mt = Lt : (Mt = Lt.text,
+        ar = "scalar"in Lt ? Lt.scalar : ar,
+        Tr = "fontFamily"in Lt ? Lt.fontFamily : Tr,
+        wr = "color"in Lt ? Lt.color : wr);
+        var Pr = 10 * ar
+          , kr = "" + Pr + "px " + Tr
+          , jr = new OffscreenCanvas(Pr,Pr)
+          , cr = jr.getContext("2d");
+        cr.font = kr;
+        var dr = cr.measureText(Mt)
+          , lr = Math.ceil(dr.actualBoundingBoxRight + dr.actualBoundingBoxLeft)
+          , ir = Math.ceil(dr.actualBoundingBoxAscent + dr.actualBoundingBoxDescent)
+          , gr = 2
+          , Cr = dr.actualBoundingBoxLeft + gr
+          , hr = dr.actualBoundingBoxAscent + gr;
+        lr += gr + gr,
+        ir += gr + gr,
+        jr = new OffscreenCanvas(lr,ir),
+        cr = jr.getContext("2d"),
+        cr.font = kr,
+        cr.fillStyle = wr,
+        cr.fillText(Mt, Cr, hr);
+        var zr = 1 / ar;
+        return {
+            type: "bitmap",
+            bitmap: jr.transferToImageBitmap(),
+            matrix: [zr, 0, 0, zr, -lr * zr / 2, -ir * zr / 2]
+        }
+    }
+    b.exports = function() {
+        return Rt().apply(this, arguments)
+    }
+    ,
+    b.exports.reset = function() {
+        Rt().reset()
+    }
+    ,
+    b.exports.create = Ft,
+    b.exports.shapeFromPath = Et,
+    b.exports.shapeFromText = St
+})(this, module, true, SIZE);
+onmessage = function(msg) {
+  if (msg.data.options) {
+    CONFETTI(msg.data.options).then(function () {
+      if (msg.data.callback) {
+        postMessage({ callback: msg.data.callback });
+      }
+    });
+  } else if (msg.data.reset) {
+    CONFETTI && CONFETTI.reset();
+  } else if (msg.data.resize) {
+    SIZE.width = msg.data.resize.width;
+    SIZE.height = msg.data.resize.height;
+  } else if (msg.data.canvas) {
+    SIZE.width = msg.data.canvas.width;
+    SIZE.height = msg.data.canvas.height;
+    CONFETTI = module.exports.create(msg.data.canvas);
+  }
+}
